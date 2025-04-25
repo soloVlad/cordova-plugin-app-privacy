@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-app-privacy" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>AppPrivacyPlugin</name>
+    <description>Cordova plugin to enable/disable privacy mode. In privacy mode taking screenshots is not allowed and app is hidden when minimized</description>
+    <license>Apache 2.0</license>
+    <author>Vlad Solovey</author>
+
+    <js-module name="AppPrivacyPlugin" src="www/AppPrivacyPlugin.js">
+        <clobbers target="cordova.plugins.AppPrivacyPlugin" />
+    </js-module>
+
+    <platform name="android">
+        <config-file target="config.xml" parent="/*">
+            <feature name="AppPrivacyPlugin">
+                <param name="android-package" value="com.solovlad.appprivacy.AppPrivacyPlugin" />
+            </feature>
+        </config-file>
+        <source-file src="src/android/AppPrivacyPlugin.java" target-dir="src/com/solovlad/appprivacy" />
+    </platform>
+
+    <platform name="ios">
+        <source-file src="src/ios/AppPrivacyPlugin.m" />
+    </platform>
+</plugin>
