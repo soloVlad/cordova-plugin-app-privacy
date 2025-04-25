@@ -3,7 +3,7 @@
 @interface AppPrivacyPlugin : CDVPlugin
 
 @property (nonatomic, assign) BOOL privacyModeEnabled;
-@property (nonatomic, strong) UIView *privacyView;
+@property (nonatomic, strong) UIWindow *privacyWindow;
 
 - (void)enablePrivacyMode:(CDVInvokedUrlCommand*)command;
 - (void)disablePrivacyMode:(CDVInvokedUrlCommand*)command;
@@ -13,31 +13,14 @@
 @implementation AppPrivacyPlugin
 
 - (void)pluginInitialize {
-    // Подписываемся на события жизненного цикла приложения
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onAppWillResignActive:)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onAppDidBecomeActive:)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    
-    // Подписываемся на событие скриншота
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(userDidTakeScreenshot:)
-                                                 name:UIApplicationUserDidTakeScreenshotNotification
-                                               object:nil];
-    
-    // Подписываемся на изменение статуса записи экрана (iOS 11+)
-    if (@available(iOS 11.0, *)) {
-        [[UIScreen mainScreen] addObserver:self
-                                forKeyPath:@"captured"
-                                   options:NSKeyValueObservingOptionNew
-                                   context:nil];
-    }
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppWillResignActive:) name:UIApplicationWillResignActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userDidTakeScreenshot:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+        if (@available(iOS 11.0, *)) {
+            [[UIScreen mainScreen] addObserver:self forKeyPath:@"captured" options:NSKeyValueObservingOptionNew context:nil];
+        }
+    });
     self.privacyModeEnabled = NO;
 }
 
@@ -73,19 +56,16 @@
 
 - (void)applyPrivacyScreen {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (!self.privacyView) {
-            // Create a black view that covers the entire screen
-            self.privacyView = [[UIView alloc] initWithFrame:self.viewController.view.bounds];
-            self.privacyView.backgroundColor = [UIColor blackColor];
-            self.privacyView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        if (!self.privacyWindow) {
+            self.privacyWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+            self.privacyWindow.windowLevel = UIWindowLevelAlert + 1;
+            self.privacyWindow.backgroundColor = [UIColor blackColor];
+            self.privacyWindow.userInteractionEnabled = NO;
+            self.privacyWindow.hidden = NO;
         }
-        if (!self.privacyView.superview) {
-            [self.viewController.view addSubview:self.privacyView];
-        }
-        self.privacyView.hidden = NO;
+        self.privacyWindow.hidden = NO;
     });
 }
-
 - (void)userDidTakeScreenshot:(NSNotification *)notification {
     if (!self.privacyModeEnabled) {
         return; // Если режим приватности выключен — ничего не делаем
@@ -128,10 +108,9 @@
 
 - (void)removePrivacyScreen {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.privacyView) {
-            self.privacyView.hidden = YES;
-            [self.privacyView removeFromSuperview];
-            self.privacyView = nil;
+        if (self.privacyWindow) {
+            self.privacyWindow.hidden = YES;
+            self.privacyWindow = nil;
         }
     });
 }
