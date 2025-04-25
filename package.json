@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-app-privacy",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Cordova plugin to enable/disable privacy mode (block screenshots, hide content when minimized) on Android and iOS.",
   "cordova": {
     "id": "cordova-plugin-app-privacy",
