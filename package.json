@@ -15,7 +15,10 @@
     "plugin",
     "screenshots",
     "android",
-    "ios"
+    "ios",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
   ],
   "author": "Vlad Solovey",
   "license": "Apache-2.0"
