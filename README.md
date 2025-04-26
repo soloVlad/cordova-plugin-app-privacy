@@ -5,7 +5,7 @@ A Cordova plugin to enhance application privacy by hiding sensitive content when
 ## 🛠 Installation
 
 ```bash
-cordova plugin add path/to/your/AppPrivacyPlugin
+cordova plugin add cordova-plugin-app-privacy
 ```
 
 ## Example
